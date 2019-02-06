@@ -1,5 +1,34 @@
 #!/bin/bash
-driver="intel_backlight"
-#acpi_video0 or intel_backlight
-sudo tee /sys/class/backlight/$driver/brightness <<< $1
+#dim: control display brightness from terminal
+#usage: dim x
+#where x is an integer for a new display brightness within the [min,max] range of [0,100]
+#user should be part of the video user group to run this wcd ithout sudo
+#James B. Ackman 2019-02-06T15:55:20-08:00
+
+#check kernel backlight driver names on your machine: `ls -l /sys/class/backlight/*`
+#then set following var, e.g. acpi_video0 or intel_backlight
+backlightDriver="intel_backlight"
+set -e #exit if an error
+percentValue=$1
+
+if [[ $percentValue -lt "0" || $percentValue  -gt "100" ]]; then
+  echo 'value should be in range [0,100]'
+  exit 1
+fi
+ 
+maxBrightness=$(cat /sys/class/backlight/$backlightDriver/max_brightness)
+
+if [[ $maxBrightness -lt "100" ]]; then
+  echo 'max_brightness below 100. Edit this script.'
+  exit 1
+fi
+
+newValue=`echo $(( $maxBrightness / 100 * $percentValue ))`
+
+if [[ $newValue -le "0" ]]; then
+  echo 'value too low'
+  exit 1
+fi
+
+sudo tee /sys/class/backlight/$backlightDriver/brightness <<< $newValue
 
