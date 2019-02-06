@@ -1,0 +1,41 @@
+#!/bin/bash
+defTitle=journal
+defDir=notes
+defTemplate=$HOME/bin/nj-note.md
+defApp=nano #nano,vim,gvim,emacs,atom,subl
+
+title=$1
+basedir=$2
+mdtemplate=$3
+app=$EDITOR
+
+if [[ -z $title ]]; then
+	title=$defTitle
+fi
+
+if [[ -z $basedir ]]; then
+	basedir=$HOME/$defDir
+fi
+
+if [[ -z $mdtemplate ]]; then
+	mdtemplate=$defTemplate
+fi
+
+if [[ -z $app ]]; then
+	app=$defApp
+fi
+
+#basedir=if [[ -z $var 2:-$HOME/$defDir}
+
+fn=$basedir/$(date +"%Y-%m-%d")-$title.md
+
+if [[ -e $fn ]]
+then
+	echo "opening $fn"
+	$app $fn
+else
+	echo "creating $fn"
+	cat $mdtemplate | sed -E "s|(date: ).+|\1$(date --iso-8601='seconds')  |" >> $fn
+	$app $fn
+fi
+

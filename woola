@@ -1,0 +1,22 @@
+#!/bin/bash
+#helper startup script for woola
+appPath="$HOME/projects/dev/woola"
+configFile=$HOME/.config/woola/config.js
+
+if [[ -e $configFile ]] && [[ ! -e config.js ]]; then
+    ln -s $configFile config.js
+fi
+
+if [[ ! -d css ]]; then
+    ln -s $HOME/projects/dev/libcss css
+fi
+
+#if [[ ! -d js ]]; then
+#    ln -s $appPath/js js
+#fi
+
+#if [[ ! -d figures ]]; then
+#    ln -s $HOME/figures figures
+#fi
+node $appPath/lib/index.js
+
