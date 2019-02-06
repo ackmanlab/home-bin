@@ -1,3 +1,5 @@
 #!/bin/bash
-sudo tee /sys/class/backlight/acpi_video0/brightness <<< $1
+driver="intel_backlight"
+#acpi_video0 or intel_backlight
+sudo tee /sys/class/backlight/$driver/brightness <<< $1
 
