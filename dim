@@ -30,5 +30,5 @@ if [[ $newValue -le "0" ]]; then
   exit 1
 fi
 
-sudo tee /sys/class/backlight/$backlightDriver/brightness <<< $newValue
+tee /sys/class/backlight/$backlightDriver/brightness <<< $newValue
 
