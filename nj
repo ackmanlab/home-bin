@@ -1,13 +1,39 @@
 #!/bin/bash
+if [ "$1" == "-h" ] ; then
+    echo "
+          nj - new journal, create/open markdown text file for human writing
+             - creates new or opens existing file in the user's preferred EDITOR 
+             (e.g. if defined in .bashrc) else nano is used as default.
+    
+              Usage: `basename $0` 
+                     `basename $0` my-title ~/projects/foo ~/bin/nj-ucsc.md
+              
+              The first example above would create new timestamped file in the default 
+              notes directory.  
+              The second example would create/open existing file called 'my-title.md' 
+              in a directory 'projects/foo' using a custom user template called 'nj-ucsc.tmpl'
+
+              Setup .bashrc.local or other user specific config file for defining 
+              EDITOR, MY_NAME variables: 'export EDITOR=subl'
+    "
+    echo "$(tput setaf 6)$EDITOR $(tput setaf 7)is currently set as editor"
+    exit 0
+fi
+
 defTitle=journal
 defDir=notes
-defTemplate=$HOME/bin/nj-note.md
-defApp=nano #nano,vim,gvim,emacs,atom,subl
+defApp=nano #nano,vim,nvim,gvim,emacs,atom,subl
+defTemplate=$HOME/bin/nj.tmpl
 
 title=$1
 basedir=$2
 mdtemplate=$3
 app=$EDITOR
+author=$MY_NAME
+
+if [[ -z $author ]]; then
+	author=$USER
+fi
 
 if [[ -z $title ]]; then
 	title=$defTitle
@@ -35,7 +61,7 @@ then
 	$app $fn
 else
 	echo "creating $fn"
-	cat $mdtemplate | sed -E "s|(date: ).+|\1$(date --iso-8601='seconds')  |" >> $fn
+    cat $mdtemplate | sed -E "s|(date: ).+|\1$(date --iso-8601='seconds')|" | sed -E "s|(author: ).+|\1$author  |" | sed -E "s|(title: ).+|\1$title  |" >> $fn
 	$app $fn
 fi
 
