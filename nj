@@ -5,8 +5,8 @@ if [ "$1" == "-h" ] ; then
              - creates new or opens existing file in the user's preferred EDITOR 
              (e.g. if defined in .bashrc) else nano is used as default.
     
-              Usage: `basename $0` 
-                     `basename $0` my-title ~/projects/foo ~/bin/nj-ucsc.md
+              Usage: nj 
+                     nj my-title ~/projects/foo ~/bin/nj-ucsc.md
               
               The first example above would create new timestamped file in the default 
               notes directory.  
@@ -14,7 +14,8 @@ if [ "$1" == "-h" ] ; then
               in a directory 'projects/foo' using a custom user template called 'nj-ucsc.tmpl'
 
               Setup .bashrc.local or other user specific config file for defining 
-              EDITOR, MY_NAME variables: 'export EDITOR=subl'
+              variables: 'export EDITOR=vim' or set temporarily for current session:
+              'export author='first last'
     "
     echo "$(tput setaf 6)$EDITOR $(tput setaf 7)is currently set as editor"
     exit 0
@@ -29,39 +30,40 @@ title=$1
 basedir=$2
 mdtemplate=$3
 app=$EDITOR
-author=$MY_NAME
+
+if [[ $MY_NAME ]] & [[ -z $author ]]; then
+    author=$MY_NAME
+fi
 
 if [[ -z $author ]]; then
-	author=$USER
+    author=$USER
 fi
 
 if [[ -z $title ]]; then
-	title=$defTitle
+    title=$defTitle
 fi
 
 if [[ -z $basedir ]]; then
-	basedir=$HOME/$defDir
+    basedir=$HOME/$defDir
 fi
 
 if [[ -z $mdtemplate ]]; then
-	mdtemplate=$defTemplate
+    mdtemplate=$defTemplate
 fi
 
 if [[ -z $app ]]; then
-	app=$defApp
+    app=$defApp
 fi
-
-#basedir=if [[ -z $var 2:-$HOME/$defDir}
 
 fn=$basedir/$(date +"%Y-%m-%d")-$title.md
 
 if [[ -e $fn ]]
 then
-	echo "opening $fn"
-	$app $fn
+    echo "opening $fn"
+    $app $fn
 else
-	echo "creating $fn"
+    echo "creating $fn"
     cat $mdtemplate | sed -E "s|(date: ).+|\1$(date --iso-8601='seconds')|" | sed -E "s|(author: ).+|\1$author  |" | sed -E "s|(title: ).+|\1$title  |" >> $fn
-	$app $fn
+    $app $fn
 fi
 
