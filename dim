@@ -6,7 +6,7 @@
 #James B. Ackman 2019-02-06T15:55:20-08:00
 
 #check kernel backlight driver names on your machine: `ls -l /sys/class/backlight/*`
-#then set following var, e.g. acpi_video0 or intel_backlight
+#then set following var, e.g. acpi_video0 nv_backlight or intel_backlight
 backlightDriver="intel_backlight"
 set -e #exit if an error
 percentValue=$1
