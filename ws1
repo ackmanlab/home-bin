@@ -1,7 +1,0 @@
-#!/bin/bash
-#urxvt -e "dimr &"
-urxvt -cd $HOME/projects &
-urxvt &
-urxvt &
-urxvt -cd $HOME/notes &
-

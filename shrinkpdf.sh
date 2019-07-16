@@ -1,11 +1,21 @@
 #!/bin/bash
-#shrinkpdf - resize pdf to smaller size. Warning: if no second file name is provided, the default behavior is to overwrite the original pdf
-# usage:
-#  shrinkpdf.sh large.pdf
-#  shrinkpdf.sh large.pdf small.pdf
-# dependencies:
-#  ps2pdf from Ghostscript
-#  mktemp from GNU Coreutils
+if [ "$1" == "-h" ] ; then
+    echo "
+        shrinkpdf - resize pdf to smaller size. Warning: if no second file name is provided, the default behavior is to overwrite the original pdf
+         usage:
+          shrinkpdf.sh large.pdf
+          shrinkpdf.sh large.pdf small.pdf
+         dependencies:
+          ps2pdf from Ghostscript
+          mktemp from GNU Coreutils
+   
+              Usage: shrinkpdf.sh infile.pdf
+                     shrinkpdf.sh infile outfile.pdf 
+    "
+    exit 0
+fi
+
+set -e
 
 #Setup defaults
 fn=$1
