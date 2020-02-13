@@ -1,14 +1,29 @@
 #!/bin/bash
-#spubmed.sh - search for pubmed for author, journal, year
-# usage:
-#  spubmed.sh 'kaas' 'trends+neurosci' '1995'
-#  spubmed.sh 'rakic' 'j+comp+neurol' '1972'
+if [ "$1" == "-h" ] ; then
+    echo "
+        spubmed.sh - search for pubmed for author, journal, year
+
+         usage:
+          spubmed.sh 'kaas' 'trends+neurosci' '1995'
+          spubmed.sh 'rakic' 'j+comp+neurol' '1972'
+
+         depends: 
+          xsltproc - xml processor, from GNOME project
+          pubmed2bibtex.xsl - xml processor stylesheet
+
+         defaults:
+          Set the three required default file locations (xsl file, bib file, pdf directory)
+ 
+    "
+    exit 0
+fi
 
 #Setup defaults
-styleSheet="$HOME/bin/pubmed2bibtex.xsl"
-bibdFileOut="$HOME/projects/bibd/OMEGA.bib"
-pdfPathOut="$HOME/projects/bibd/papers"
+styleSheet=${pubmedStyleSheet:-$HOME/bin/pubmed2bibtex.xsl}
+bibdFileOut=${bibdFileOut:-$HOME/projects/bibd/OMEGA.bib}
+pdfPathOut=${pdfPathOut:-$HOME/projects/bibd/papers}
 relPath=$(basename $pdfPathOut)
+
 author=$1
 journal=$2
 year=$3

@@ -20,6 +20,7 @@ set -e
 #Setup defaults
 fn=$1
 fn2=$2
+
 set -e #exit if an error
 
 #decide whether to use a provided new file name or too write over the original filename

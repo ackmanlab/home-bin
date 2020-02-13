@@ -1,13 +1,26 @@
 #!/bin/bash
-#spmid - search for pubmed id and append bibtex entry to db
-# usage:
-#  spmid.sh '12345678'
-#  spmid.sh '12345678' download.pdf
+if [ "$1" == "-h" ] ; then
+    echo "
+        spmid - search for pubmed guid and append bibtex entry to bibtex db. Optionally import an associated pdf.
+         usage:
+          spmid.sh '12345678'
+          spmid.sh '12345678' download.pdf
+
+         depends: 
+          xsltproc - xml processor, from GNOME project
+          pubmed2bibtex.xsl - xml processor stylesheet
+
+         defaults:
+          Set the three required default file locations (xsl file, bib file, pdf directory)
+ 
+    "
+    exit 0
+fi
 
 #Setup defaults
-styleSheet="$HOME/bin/pubmed2bibtex.xsl"
-bibdFileOut="$HOME/projects/bibd/OMEGA.bib"
-pdfPathOut="$HOME/projects/bibd/papers"
+styleSheet=${pubmedStyleSheet:-$HOME/bin/pubmed2bibtex.xsl}
+bibdFileOut=${bibdFileOut:-$HOME/projects/bibd/OMEGA.bib}
+pdfPathOut=${pdfPathOut:-$HOME/projects/bibd/papers}
 relPath=$(basename $pdfPathOut)
 uid=$1
 fn=$2

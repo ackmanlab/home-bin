@@ -1,6 +1,18 @@
 #!/bin/bash
-#installation: place in home directory and make this file executable `chmod u=rwX,go= reveal.sh`
-#usage example: `./reveal.sh neuroanatomy1.md`
+if [ "$1" == "-h" ] ; then
+    echo "
+              reveal - helper app for opening reveal.js markdown presentations 
+              Useful for serving markdown text files locally with reveal.js
+              
+              Usage: reveal.sh neuroanatomy1.md
+
+    "
+    echo "$(tput setaf 6)$EDITOR $(tput setaf 7)is currently set as editor"
+    exit 0
+fi
+
+set -e
+
 
 appPath="$HOME/projects/dev/reveal.js"
 

@@ -1,7 +1,25 @@
 #!/bin/bash
+if [ "$1" == "-h" ] ; then
+    echo "
+              woola shell script - a helper app to invoke the woola markdown content build or server programs
+    
+              Usage: woola
+                     woola build
+             
+              Takes an optional flag that can be 'build' to build website files instead of serving.
+              By default this app will serve files from the current directory by default using woola.
+
+              Installation: place in home directory and make this file executable chmod: u=rwX,go= woola
+    "
+    exit 0
+fi
+
+set -e
+
 #helper startup script for woola
 appPath="$HOME/projects/dev/woola"
 configFile=$HOME/.config/woola/config.js
+optFlag=${1:-serve}
 
 if [[ -e $configFile ]] && [[ ! -e config.js ]]; then
     ln -s $configFile config.js
@@ -18,5 +36,9 @@ fi
 #if [[ ! -d figures ]]; then
 #    ln -s $HOME/figures figures
 #fi
-node $appPath/lib/index.js
+if [[ "$optFlag" == "build" ]]; then
+    node $appPath/lib/index --build
+else
+    node $appPath/lib/index.js 
+fi
 

@@ -1,12 +1,26 @@
 #!/bin/bash
-#sdoi - search for doi and append bibtex entry to db
-# usage:
-#  sdoi.sh 'doi.string'
+if [ "$1" == "-h" ] ; then
+    echo "
+        sdoi - search for doi guid on pubmed and append bibtex entry to bibtex db. Optionally import a downloaded pdf.
+
+         usage:
+          sdoi.sh 'doi'
+          sdoi.sh 'doi' download.pdf
+
+         depends: 
+          xsltproc - xml processor, from GNOME project
+          pubmed2bibtex.xsl - xml processor stylesheet
+
+         defaults:
+          Set the three required default file locations (xsl file, bib file, pdf directory)
+          "
+    exit 0
+fi 
 
 #Setup defaults
-styleSheet="$HOME/bin/pubmed2bibtex.xsl"
-bibdFileOut="$HOME/projects/bibd/OMEGA.bib"
-pdfPathOut="$HOME/projects/bibd/papers"
+styleSheet=${pubmedStyleSheet:-$HOME/bin/pubmed2bibtex.xsl}
+bibdFileOut=${bibdFileOut:-$HOME/projects/bibd/OMEGA.bib}
+pdfPathOut=${pdfPathOut:-$HOME/projects/bibd/papers}
 relPath=$(basename $pdfPathOut)
 doi=$1
 fn=$2

@@ -1,5 +1,5 @@
 #!/bin/bash
-#mv2figs: used by the <cmd-z> screenshot shortcut set in .config/i3/config
+#mv2figs: used by the <ctrl-z> screenshot shortcut set in .config/i3/config
 
 #default image location
 blobFolder=$HOME/figures

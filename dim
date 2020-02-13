@@ -2,7 +2,7 @@
 #dim: control display brightness from terminal
 #usage: dim x
 #where x is an integer for a new display brightness within the [min,max] range of [0,100]
-#user should be part of the video user group to run this wcd ithout sudo
+#user should be part of the video user group to run this without sudo
 #James B. Ackman 2019-02-06T15:55:20-08:00
 
 #check kernel backlight driver names on your machine: `ls -l /sys/class/backlight/*`
