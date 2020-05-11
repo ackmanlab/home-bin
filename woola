@@ -4,10 +4,25 @@ if [ "$1" == "-h" ] ; then
               woola shell script - a helper app to invoke the woola markdown content build or server programs
     
               Usage: woola
-                     woola build
-             
-              Takes an optional flag that can be 'build' to build website files instead of serving.
+                     woola --build
+
               By default this app will serve files from the current directory by default using woola.
+             
+              Takes an optional flags listed below. For example '--build' to build website files instead of serving.
+
+              Optional arguments passed to woola/lib/index.js:
+                .option('-b, --build', 'Build and write html to path {site.options.dstPath}')  
+                .option('-c, --config [type]', 'config.js path [config]', null)  
+                .option('-d, --dir [type]', 'Serve from directory [dir]', './')
+                .option('-s, --css [type]', 'uri path to css styles [css]', null)  
+                .option('-p, --port [type]', 'Serve on port [port]', null)
+                .option('-a, --address [type]', 'Serve on ip/address [address]', 'localhost') //localhost or 127.0.0.1
+                .option('-h, --header [type]', 'Header .md file', null)
+                .option('-r, --footer [type]', 'Footer .md file', null)
+                .option('-n, --navigation [type]', 'Navigation .md file', null)
+                .option('-f, --file [type]', 'Open specific file in browser [file]')
+                .option('-x, --x', 'Don\'t open browser on run.')
+                .option('-v, --verbose', 'verbose output')
 
               Installation: place in home directory and make this file executable chmod: u=rwX,go= woola
     "
@@ -19,7 +34,8 @@ set -e
 #helper startup script for woola
 appPath="$HOME/projects/dev/woola"
 configFile=$HOME/.config/woola/config.js
-optFlag=${1:-serve}
+# optFlag=${1:-serve}
+optFlag=$1
 
 if [[ -e $configFile ]] && [[ ! -e config.js ]]; then
     ln -s $configFile config.js
@@ -36,8 +52,14 @@ fi
 #if [[ ! -d figures ]]; then
 #    ln -s $HOME/figures figures
 #fi
-if [[ "$optFlag" == "build" ]]; then
-    node $appPath/lib/index --build
+# if [[ "$optFlag" == "build" ]]; then
+    # node $appPath/lib/index --build
+# else
+    # node $appPath/lib/index.js 
+# fi
+
+if [[ "$optFlag" ]]; then
+    node $appPath/lib/index $optFlag
 else
     node $appPath/lib/index.js 
 fi
