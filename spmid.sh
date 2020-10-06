@@ -39,7 +39,7 @@ if [ -z "$fn" ]; then
 else
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
-  author=$(grep $key --max-count=1 $uid.xml | sed -E "s#\W*<$key>(.+)</$key>\W*#\1#")
+  author=$(grep $key --max-count=1 $uid.xml | sed -E "s#\W*<$key>(.+)</$key>\W*#\1#" | tr -d " ")
 
   key="MedlineTA"; 
   journal=$(grep $key --max-count=1 $uid.xml | sed -E "s#\W*<$key>(.+)</$key>\W*#\1#" | tr -d " ")
