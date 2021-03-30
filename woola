@@ -8,7 +8,7 @@ if [ "$1" == "-h" ] ; then
 
               By default this app will serve files from the current directory by default using woola.
              
-              Takes an optional flags listed below. For example '--build' to build website files instead of serving.
+              Takes an optional flag of those listed below. For example '--build' to build website files instead of serving.
 
               Optional arguments passed to woola/lib/index.js:
                 .option('-b, --build', 'Build and write html to path {site.options.dstPath}')  
@@ -24,7 +24,7 @@ if [ "$1" == "-h" ] ; then
                 .option('-x, --x', 'Don\'t open browser on run.')
                 .option('-v, --verbose', 'verbose output')
 
-              Installation: place in home directory and make this file executable chmod: u=rwX,go= woola
+              Installation: place in home bin directory and make this file executable chmod: u=rwX,go= woola
     "
     exit 0
 fi
@@ -34,8 +34,7 @@ set -e
 #helper startup script for woola
 appPath="$HOME/projects/dev/woola"
 configFile=$HOME/.config/woola/config.js
-# optFlag=${1:-serve}
-optFlag=$1
+optFlag=$@
 
 if [[ -e $configFile ]] && [[ ! -e config.js ]]; then
     ln -s $configFile config.js
@@ -58,9 +57,11 @@ fi
     # node $appPath/lib/index.js 
 # fi
 
-if [[ "$optFlag" ]]; then
-    node $appPath/lib/index $optFlag
-else
-    node $appPath/lib/index.js 
-fi
+# if [[ "$optFlag" ]]; then
+    # node $appPath/lib/index $optFlag
+# else
+    # node $appPath/lib/index.js 
+# fi
+
+node $appPath/lib/index $optFlag
 

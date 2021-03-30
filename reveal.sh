@@ -5,7 +5,7 @@ if [ "$1" == "-h" ] ; then
               Useful for serving markdown text files locally with reveal.js
               
               Usage: reveal.sh neuroanatomy1.md
-
+                     reveal.sh neuroanatomy1.md 8001
     "
     echo "$(tput setaf 6)$EDITOR $(tput setaf 7)is currently set as editor"
     exit 0
@@ -13,8 +13,9 @@ fi
 
 set -e
 
-
-appPath="$HOME/projects/dev/reveal.js"
+# appPath="$HOME/projects/dev/reveal.js"
+appPath="$HOME/projects/archive/external/reveal.js"
+portNumber=${2:-8000}
 
 if [[ ! -d $appPath ]]; then
     echo "reveal.js not found"
@@ -30,5 +31,5 @@ fi
 
 #add markdown filename to reveal placeholder start file
 sed -i -E "s|(<section data-markdown=\")[A-Za-z0-9\.-]*(\" )|\1$fn\2|" index.html
-npm start
-
+npm start -- --port=$portNumber
+# npm start 

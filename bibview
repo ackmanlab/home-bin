@@ -1,0 +1,30 @@
+#!/bin/bash
+if [ "$1" == "-h" ] ; then
+    echo "
+    bibview - search for citekey in a bibjson.json and preview pdf
+         usage:
+          bibview
+
+         depends: 
+          fzf
+          zathura (or other fast pdf viewer)
+
+         defaults:
+          Set the required default file locations (csl file, bib file)
+ 
+    "
+    exit 0
+fi
+#Setup defaults
+bibdFile=${2:-$HOME/projects/bibd/OMEGA.json}
+#pandoc-citeproc --bib2json ~/projects/bibd/OMEGA.bib > OMEGA.json
+cd $(dirname $bibdFile)
+set -e #exit if an error
+
+# export citeKey=$1
+# doiStr=$(jq -r '.[] | select(.id==env.citeKey).DOI' $bibdFile)
+# urlStr=$(jq -r '.[] | select(.id==env.citeKey).URL' $bibdFile)
+
+#actually this is the good one, opens pdfs quickly
+jq -r '.[] | [.id, .title, .abstract, .keyword, .DOI, .PMID, .author[]?.family, .issued[]?[0]?[0], .["container-title"], .URL] | join("  ")' $bibdFile | fzf --preview 'echo {}' --preview-window=:up:70%:wrap --bind "enter:execute-silent(zathura {-1} &)"
+
