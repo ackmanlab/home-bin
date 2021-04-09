@@ -27,57 +27,87 @@ fn=$2
 
 set -e #exit if an error
 
-uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=doi&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s#<Id>([0-9]+)</Id>#\1#")
+uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=doi&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s|<Id>([0-9]+)</Id>|\1|")
+
+tmpBib=$(mktemp -p --suffix=.bib)
 
 if [ -z "$uid" ]; then
-  echo "pubmed id not found"
-  exit 1
+  fetchBib_doiDotOrg
+else
+  fetchBib_pubmed
 fi
 
-#request pubmed xml and transform into bibtex
-curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=$uid&retmode=xml" > $uid.xml
-xsltproc --novalid $styleSheet $uid.xml > $uid.bib
-
-#decide whether to process and move an associated pdf or just exit
-if [ -z "$fn" ]; then
-
-  if [[ -z $(rg $uid $bibdFileOut) ]]; then
-    #import bibtex
-    echo "importing $uid.bib"
-    cat $uid.bib >> $bibdFileOut
-  else
-    echo "$uid already found in $bibdFileOut, exiting"
-  fi
-  #clean up
-  rm $uid.xml $uid.bib
-  exit 1
-
+if [ -s "$tmpBib" ]; then
+  import_bib
 else
+  echo "sorry, doi not found.."
+  clean_up
+fi
+
+  
+
+function import_bib {
+  #decide whether to process and move an associated pdf or just exit
+  if [ -z "$fn" ]; then
+    append_bibfile
+    clean_up
+  else
+    extract_name
+    append_pdf
+    append_bibfile
+    clean_up
+  fi
+}
+
+function fetchBib_pubmed {
+  #request pubmed xml and transform into bibtex
+  curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=$uid&retmode=xml" > $tmpBib.xml
+  xsltproc --novalid $styleSheet $tmpBib.xml > $tmpBib
+}
+
+function fetchBib_doiDotOrg {
+  echo "pubmed id not found, trying doi.org.."
+  curl -LH 'Accept: application/x-bibtex' "http//dx.doi.org/"$doi >> $tmpBib
+  echo -e "\n" >> $tmpBib
+}
+
+function extract_name {
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
-  author=$(grep $key --max-count=1 $uid.xml | sed -E "s#\W*<$key>(.+)</$key>\W*#\1#" | tr -d " ")
+  author=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
 
   key="MedlineTA"; 
-  journal=$(grep $key --max-count=1 $uid.xml | sed -E "s#\W*<$key>(.+)</$key>\W*#\1#" | tr -d " ")
+  journal=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
 
   key1="PubDate"; 
-  key2="Year"; year=$(awk "/<$key1>/,/<\/$key1>/" $uid.xml | grep $key2 | sed -E "s#\W*<$key2>(.+)</$key2>\W*#\1#")
+  key2="Year"; year=$(awk "/<$key1>/,/<\/$key1>/" $tmpBib.xml | grep $key2 | sed -E "s|\W*<$key2>(.+)</$key2>\W*|\1|")
 
+}
+
+function append_bibfile {
+  #import bibtex
+  #first grep for a uid (doi) in case its already in db
+  if [[ -z $(rg $doi $bibdFileOut) ]]; then
+    echo "importing $tmpBib"
+    cat $tmpBib >> $bibdFileOut
+  else
+    echo "$doi already found in $bibdFileOut, exiting"
+  fi
+}
+
+
+function append_pdf {
   fn2=${author}_${journal}$year-$uid.pdf
-
   #move pdf file to papers repository, add file name to bibtex file field
   mv $fn $pdfPathOut/$fn2
   echo "moved to $pdfPathOut/$fn2"
-  sed -i -E "s|(\W*file = \{).*(\}.*)|\1$relPath/$fn2\2|" $uid.bib
+  sed -i -E "s|(\W*file = \{).*(\}.*)|\1$relPath/$fn2\2|" $tmpBib
+}
 
-  if [[ -z $(rg $uid $bibdFileOut) ]]; then
-    #import bibtex
-    echo "importing $uid.bib"
-    cat $uid.bib >> $bibdFileOut
-  else
-    echo "$uid already found in $bibdFileOut, exiting"
-  fi
 
+function clean_up {
   #clean up
-  rm $uid.xml $uid.bib
-fi
+  rm -f $tmpBib $tmpBib.xml
+  exit 1
+}
+

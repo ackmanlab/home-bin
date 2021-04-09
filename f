@@ -33,11 +33,12 @@ fi
 
 if [ -z "$1" ]; then
     #FZF_DEFAULT_COMMAND=rg -i --files --glob "!.git/*"
-    fzf --delimiter : --preview 'less {1}' \
+    # fzf --delimiter : --preview 'less {1}' \
+    fzf --delimiter : --preview 'bat --color=always --style=numbers --line-range=:500 {}' \
         --preview-window=up:70% --bind "enter:execute-silent(gvim {1} &)" 
 
 else
-
-    rg $1 | fzf --delimiter : --preview 'less {1}' \
+    # rg $1 | fzf --delimiter : --preview 'less {1}' \
+    rg $1 | fzf --delimiter : --preview 'bat --color=always --style=numbers --line-range=:500 {}' \
         --preview-window=up:70% --bind "enter:execute-silent(gvim {1} &)" 
 fi

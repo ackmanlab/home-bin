@@ -34,12 +34,12 @@
 <xsl:value-of select="MedlineCitation/Article/Journal/JournalIssue/PubDate/Year"/>
 <!-- <xsl:text>_</xsl:text><xsl:value-of select="MedlineCitation/PMID" /> -->
 <xsl:apply-templates select="MedlineCitation/Article"/>
-<xsl:apply-templates select="MedlineCitation/KeywordList"/>
-<!-- <xsl:apply-templates select="MedlineCitation/MeshHeadingList"/> -->
+<!-- <xsl:apply-templates select="MedlineCitation/KeywordList"/> -->
+<xsl:apply-templates select="MedlineCitation/MeshHeadingList"/>
 <xsl:apply-templates select="PubmedData/ArticleIdList/ArticleId"/>
+<!-- url = {https://www.ncbi.nlm.nih.gov/pubmed/</xsl:text><xsl:value-of select="MedlineCitation/PMID"/><xsl:text>}, -->
 <xsl:text>,
-  url = {https://www.ncbi.nlm.nih.gov/pubmed/</xsl:text><xsl:value-of select="MedlineCitation/PMID"/><xsl:text>},
-  file = {}</xsl:text>
+  url = {}</xsl:text>
 <xsl:if test="string-length(MedlineCitation/MedlineJournalInfo/NlmUniqueID) > 0"><xsl:text>,
   nlmuniqueid = {</xsl:text><xsl:value-of select="MedlineCitation/MedlineJournalInfo/NlmUniqueID" /><xsl:text>}</xsl:text></xsl:if>
 <xsl:text>
@@ -108,7 +108,7 @@
 <xsl:apply-templates select="ForeName"/>
 </xsl:template>
 
-
+<!--
 <xsl:template match="KeywordList">
 <xsl:text>,
   keywords = {</xsl:text>
@@ -120,16 +120,18 @@
 </xsl:for-each>
 <xsl:text>}</xsl:text>
 </xsl:template>
+-->
 
-<!--
 <xsl:template match="MeshHeadingList">
 <xsl:text>,
-  mesh = {</xsl:text>
-<xsl:for-each select="MeshHeading">
+  keywords = {</xsl:text>
+<xsl:for-each select="/PubmedArticleSet/PubmedArticle/MedlineCitation/KeywordList/Keyword">
+<xsl:value-of select="."/><xsl:text>; </xsl:text>
+</xsl:for-each>
+<xsl:for-each select="/PubmedArticleSet/PubmedArticle/MedlineCitation/MeshHeadingList/MeshHeading">
 <xsl:value-of select="DescriptorName"/><xsl:text>; </xsl:text>
 </xsl:for-each>
 <xsl:text>}</xsl:text>
 </xsl:template>
--->
 
 </xsl:stylesheet>
