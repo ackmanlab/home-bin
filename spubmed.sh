@@ -30,7 +30,8 @@ year=$3
 
 set -e #exit if an error
 
-uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$author[au]+AND+$journal[ta]+AND+$year[dp]&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s#<Id>([0-9]+)</Id>#\1#")
+#curl's option globoff needed for using brackets in a uri
+uid=$(curl -s --globoff "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$author[au]+AND+$journal[ta]+AND+$year[dp]&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s#<Id>([0-9]+)</Id>#\1#")
 
 if [ -z "$uid" ]; then
   echo "pubmed id not found"

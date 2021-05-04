@@ -26,25 +26,7 @@ doi=$1
 fn=$2
 
 set -e #exit if an error
-
-uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=doi&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s|<Id>([0-9]+)</Id>|\1|")
-
-tmpBib=$(mktemp -p --suffix=.bib)
-
-if [ -z "$uid" ]; then
-  fetchBib_doiDotOrg
-else
-  fetchBib_pubmed
-fi
-
-if [ -s "$tmpBib" ]; then
-  import_bib
-else
-  echo "sorry, doi not found.."
-  clean_up
-fi
-
-  
+# set -v -x -e #debugging
 
 function import_bib {
   #decide whether to process and move an associated pdf or just exit
@@ -110,4 +92,22 @@ function clean_up {
   rm -f $tmpBib $tmpBib.xml
   exit 1
 }
+
+
+uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=doi&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s|<Id>([0-9]+)</Id>|\1|")
+
+tmpBib=$(mktemp -p ./ --suffix=.bib)
+
+if [ -z "$uid" ]; then
+  fetchBib_doiDotOrg
+else
+  fetchBib_pubmed
+fi
+
+if [ -s "$tmpBib" ]; then
+  import_bib
+else
+  echo "sorry, doi not found.."
+  clean_up
+fi
 
