@@ -1,11 +1,14 @@
 #!/bin/bash
 if [ "$1" == "-h" ] ; then
     echo "
-    sbib - search for citekey in a bibtex.bib (or maybe eventually bibjson.json) file and return a bibliography entry in markdown or possibly other format
+    sbib - search for citekey in a bibtex.bib or bibjson.json file, preview pdf, or return a bibliography entry in markdown or other format
+
          usage:
           sbib
           # use 'a' flag to search all 
           sbib a
+          # use 'j' flag for bibjson quick search and preview
+          sbib j
           # pass a custom citation style and database
           sbib a citeprocStyle.csl bibdFile.json
 
@@ -16,6 +19,7 @@ if [ "$1" == "-h" ] ; then
           bat or less
           pandoc
           pandoc-citeproc
+          zathura (or other fast pdf viewer)
           echo
           wl-copy
 
@@ -29,16 +33,12 @@ fi
 #Setup defaults
 cslFile=${2:-$HOME/projects/bibd/bibd-md.csl}
 bibdFile=${3:-$HOME/projects/bibd/OMEGA.bib}
+# bibdFile=${2:-$HOME/projects/bibd/OMEGA.json}
 cd $(dirname $bibdFile)
 set -e #exit if an error
 
-#set pattern to the null character '\0' for search all, else search only cite keys
-if [ "$1" == "a" ]; then
-    sPattern='\0'
-else
-    sPattern="@[a-zA-Z_-]+\{"
-fi
 
+view_bib() {
 # Use fzf to search citation
 # Initial scroll offset is set to the line number of each line
 # of git grep output *minus* 5 lines (-5)
@@ -70,3 +70,30 @@ rm $tmpName
 # fzf --preview="file {}" --preview-window=down:1
 echo $outCitation
 echo $outCitation | wl-copy
+}
+
+
+view_json() {
+# export citeKey=$1
+# doiStr=$(jq -r '.[] | select(.id==env.citeKey).DOI' $bibdFile)
+# urlStr=$(jq -r '.[] | select(.id==env.citeKey).URL' $bibdFile)
+
+#actually this is the good one, opens pdfs quickly
+jq -r '.[] | [.id, .title, .abstract, .keyword, .DOI, .PMID, .author[]?.family, .issued[]?[0]?[0], .["container-title"], .URL] | join("  ")' $bibdFile | fzf --preview 'echo {}' --preview-window=:up:70%:wrap --bind "enter:execute-silent(zathura {-1} &)"
+}
+
+
+
+#set pattern to the null character '\0' for search all, else search only cite keys
+if [ "$1" == "a" ]; then
+    sPattern='\0'
+else
+    sPattern="@[a-zA-Z_-]+\{"
+fi
+
+if [ "$1" == "j" ]; then
+    bibdFile=${3:-$HOME/projects/bibd/OMEGA.json}
+    view_json
+else
+    view_bib
+fi

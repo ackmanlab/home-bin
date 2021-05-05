@@ -17,18 +17,19 @@ if [ "$1" == "-h" ] ; then
     exit 0
 fi 
 
+set -e #exit if an error
+# set -v -x -e #debugging
+
 #Setup defaults
+doi=$1
+fn=$2
 styleSheet=${pubmedStyleSheet:-$HOME/bin/pubmed2bibtex.xsl}
 bibdFileOut=${bibdFileOut:-$HOME/projects/bibd/OMEGA.bib}
 pdfPathOut=${pdfPathOut:-$HOME/projects/bibd/papers}
 relPath=$(basename $pdfPathOut)
-doi=$1
-fn=$2
 
-set -e #exit if an error
-# set -v -x -e #debugging
-
-function import_bib {
+#define functions
+import_bib() {
   #decide whether to process and move an associated pdf or just exit
   if [ -z "$fn" ]; then
     append_bibfile
@@ -41,19 +42,19 @@ function import_bib {
   fi
 }
 
-function fetchBib_pubmed {
+fetchBib_pubmed() {
   #request pubmed xml and transform into bibtex
   curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=$uid&retmode=xml" > $tmpBib.xml
   xsltproc --novalid $styleSheet $tmpBib.xml > $tmpBib
 }
 
-function fetchBib_doiDotOrg {
+fetchBib_doiDotOrg() {
   echo "pubmed id not found, trying doi.org.."
   curl -LH 'Accept: application/x-bibtex' "http//dx.doi.org/"$doi >> $tmpBib
   echo -e "\n" >> $tmpBib
 }
 
-function extract_name {
+extract_name() {
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
   author=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
@@ -66,7 +67,7 @@ function extract_name {
 
 }
 
-function append_bibfile {
+append_bibfile() {
   #import bibtex
   #first grep for a uid (doi) in case its already in db
   if [[ -z $(rg $doi $bibdFileOut) ]]; then
@@ -78,22 +79,23 @@ function append_bibfile {
 }
 
 
-function append_pdf {
+append_pdf() {
   fn2=${author}_${journal}$year-$uid.pdf
-  #move pdf file to papers repository, add file name to bibtex file field
+  #move pdf file to papers repository, add file name to bibtex url field
   mv $fn $pdfPathOut/$fn2
   echo "moved to $pdfPathOut/$fn2"
-  sed -i -E "s|(\W*file = \{).*(\}.*)|\1$relPath/$fn2\2|" $tmpBib
+  sed -i -E "s|(\W*url = \{).*(\}.*)|\1$relPath/$fn2\2|" $tmpBib
 }
 
 
-function clean_up {
+clean_up() {
   #clean up
   rm -f $tmpBib $tmpBib.xml
   exit 1
 }
 
 
+#main
 uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=doi&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s|<Id>([0-9]+)</Id>|\1|")
 
 tmpBib=$(mktemp -p ./ --suffix=.bib)
