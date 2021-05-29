@@ -13,8 +13,7 @@ fi
 
 set -e
 
-# appPath="$HOME/projects/dev/reveal.js"
-appPath="$HOME/projects/archive/external/reveal.js"
+appPath="$HOME/projects/dev/reveal.js"
 portNumber=${2:-8000}
 
 if [[ ! -d $appPath ]]; then
@@ -25,11 +24,12 @@ else
 fi
 
 fn=$1 #markdown document to render e.g. neuroanatomy1.md
-if [[ ! -e $fn ]]; then
-    ln -s $fn $(basename $fn)
+basefn=$(basename $fn)
+if [[ ! -e $basefn ]]; then
+    ln -s $fn $basefn
 fi
 
 #add markdown filename to reveal placeholder start file
-sed -i -E "s|(<section data-markdown=\")[A-Za-z0-9\.-]*(\" )|\1$fn\2|" index.html
+sed -i -E "s|(<section data-markdown=\")[A-Za-z0-9\.-]*(\" )|\1$basefn\2|" index.html
 npm start -- --port=$portNumber
 # npm start 

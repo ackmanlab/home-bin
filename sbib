@@ -39,47 +39,47 @@ set -e #exit if an error
 
 
 view_bib() {
-# Use fzf to search citation
-# Initial scroll offset is set to the line number of each line
-# of git grep output *minus* 5 lines (-5)
-# str=$(cat $fn | fzf)
+    # Use fzf to search citation
+    # Initial scroll offset is set to the line number of each line
+    # of git grep output *minus* 5 lines (-5)
+    # str=$(cat $fn | fzf)
 
-# str=$(git grep -E --line-number $sPattern $bibdFile | fzf --delimiter : --preview 'nl {1} --body-numbering=a' --preview-window=:up:70%:+{2}-5)
-# str=$(git grep -E --line-number $sPattern $bibdFile | fzf --delimiter : --preview 'less {1}' --preview-window=:up:70%:+{2}-5)
-str=$(git grep -E --line-number $sPattern $bibdFile | fzf --delimiter : --preview 'bat --color=always --style=numbers --line-range=:500 {1}' --preview-window=:up:70%:+{2}-5)
+    # str=$(git grep -E --line-number $sPattern $bibdFile | fzf --delimiter : --preview 'nl {1} --body-numbering=a' --preview-window=:up:70%:+{2}-5)
+    # str=$(git grep -E --line-number $sPattern $bibdFile | fzf --delimiter : --preview 'less {1}' --preview-window=:up:70%:+{2}-5)
+    str=$(git grep -E --line-number $sPattern $bibdFile | fzf --delimiter : --preview 'bat --color=always --style=numbers --line-range=:500 {1}' --preview-window=:up:70%:+{2}-5)
 
 
-# extract citation key from the fzf string
-citeKey=$(echo $str | sed -E "s|$(basename $bibdFile):[0-9]+:@[a-zA-Z]+\{(.+),|\1|")
+    # extract citation key from the fzf string
+    citeKey=$(echo $str | sed -E "s|$(basename $bibdFile):[0-9]+:@[a-zA-Z]+\{(.+),|\1|")
 
-#method1
-#todo: use json with jq
-# outCitation=$(pandoc -f latex <(echo "\cite{$citeKey}") -t plain -o - --bibliography $bibdFile --citeproc --csl $cslFile | tail -n +3)
+    #method1
+    #todo: use json with jq
+    # outCitation=$(pandoc -f latex <(echo "\cite{$citeKey}") -t plain -o - --bibliography $bibdFile --citeproc --csl $cslFile | tail -n +3)
 
-#method2
-#need to use a temporary bib file as input to pandoc because parsing a large bib file is too slow, but json input would be faster
-#and because pandoc expects a file input for bibliography
-tmpName=$(mktemp --suffix=.bib)
-str3=$(grep -A 30 $citeKey $bibdFile)
-echo $str3 | sed -E "s|(.+\} ?\}).+|\1|" > $tmpName
-outCitation=$(pandoc -f latex <(echo "\cite{$citeKey}") -t plain -o - --bibliography $tmpName --citeproc --csl $cslFile | tail -n +3)
-rm $tmpName
+    #method2
+    #need to use a temporary bib file as input to pandoc because parsing a large bib file is too slow, but json input would be faster
+    #and because pandoc expects a file input for bibliography
+    tmpName=$(mktemp --suffix=.bib)
+    str3=$(grep -A 30 $citeKey $bibdFile)
+    echo $str3 | sed -E "s|(.+\} ?\}).+|\1|" > $tmpName
+    outCitation=$(pandoc -f latex <(echo "\cite{$citeKey}") -t plain -o - --bibliography $tmpName --citeproc --csl $cslFile | tail -n +3)
+    rm $tmpName
 
-#tail -n +61 $fn | sed -E "s#(.+\}\})#\1#"
-# fzf --preview="head {}" --preview-window=up:30%
-# fzf --preview="file {}" --preview-window=down:1
-echo $outCitation
-echo $outCitation | wl-copy
+    #tail -n +61 $fn | sed -E "s#(.+\}\})#\1#"
+    # fzf --preview="head {}" --preview-window=up:30%
+    # fzf --preview="file {}" --preview-window=down:1
+    echo $outCitation
+    echo $outCitation | wl-copy
 }
 
 
 view_json() {
-# export citeKey=$1
-# doiStr=$(jq -r '.[] | select(.id==env.citeKey).DOI' $bibdFile)
-# urlStr=$(jq -r '.[] | select(.id==env.citeKey).URL' $bibdFile)
+    # export citeKey=$1
+    # doiStr=$(jq -r '.[] | select(.id==env.citeKey).DOI' $bibdFile)
+    # urlStr=$(jq -r '.[] | select(.id==env.citeKey).URL' $bibdFile)
 
-#actually this is the good one, opens pdfs quickly
-jq -r '.[] | [.id, .title, .abstract, .keyword, .DOI, .PMID, .author[]?.family, .issued[]?[0]?[0], .["container-title"], .URL] | join("  ")' $bibdFile | fzf --preview 'echo {}' --preview-window=:up:70%:wrap --bind "enter:execute-silent(zathura {-1} &)"
+    #actually this is the good one, opens pdfs quickly
+    jq -r '.[] | [.id, .title, .abstract, .keyword, .DOI, .PMID, .author[]?.family, .issued[]?[0]?[0], .["container-title"], .URL] | join("  ")' $bibdFile | fzf --preview 'echo {}' --preview-window=:up:70%:wrap --bind "enter:execute-silent(zathura {-1} &)"
 }
 
 

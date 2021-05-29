@@ -1,10 +1,10 @@
 #!/bin/bash
 if [ "$1" == "-h" ] ; then
     echo "
-        pdf2bib - search for a doi within a pdf, query pubmed, and append bibtex entry with pdf to your local bib database file. Last two steps are identical to sdoi.sh
+        spdf - search for a doi within a pdf. If found, use sdoi.sh to query pubmed, and append bibtex entry with the pdf to your local bib database file
 
          usage:
-          pdf2bib.sh file.pdf
+          spdf.sh file.pdf
 
          depends:
           pdftotext - from ghostscript or poppler or texlive ?
