@@ -6,9 +6,6 @@ if [ "$1" == "-h" ] ; then
           spmid.sh '12345678'
           spmid.sh '12345678' download.pdf
 
-         depends: 
-          sdoi.sh
- 
     "
     exit 0
 fi
@@ -55,14 +52,13 @@ fetchBib_doiDotOrg() {
 extract_name() {
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
-  author=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
+  author=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
 
   key="MedlineTA"; 
-  journal=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
+  journal=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
 
-  key1="PubDate"; 
-  key2="Year"; year=$(awk "/<$key1>/,/<\/$key1>/" $tmpBib.xml | grep $key2 | sed -E "s|\W*<$key2>(.+)</$key2>\W*|\1|")
-
+  key="Year";
+  year=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
 }
 
 append_bibfile() {

@@ -6,13 +6,6 @@ if [ "$1" == "-h" ] ; then
          usage:
           spubmed.sh 'kaas' 'trends+neurosci' '1995'
           spubmed.sh 'rakic' 'j+comp+neurol' '1972'
-
-         depends: 
-          xsltproc - xml processor, from GNOME project
-          pubmed2bibtex.xsl - xml processor stylesheet
-
-         defaults:
-          Set the three required default file locations (xsl file, bib file, pdf directory)
  
     "
     exit 0

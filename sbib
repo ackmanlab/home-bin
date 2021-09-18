@@ -22,6 +22,7 @@ if [ "$1" == "-h" ] ; then
           zathura (or other fast pdf viewer)
           echo
           wl-copy
+          jq
 
          defaults:
           Set the required default file locations (csl file, bib file)

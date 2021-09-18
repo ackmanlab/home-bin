@@ -8,7 +8,7 @@ if [ "$1" == "-h" ] ; then
           sdoi.sh 'doi' download.pdf
 
          depends: 
-          xsltproc - xml processor, from GNOME project
+          xsltproc, xmllint - xml processing programs from libxml
           pubmed2bibtex.xsl - xml processor stylesheet
 
          defaults:
@@ -57,14 +57,13 @@ fetchBib_doiDotOrg() {
 extract_name() {
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
-  author=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
+  author=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
 
   key="MedlineTA"; 
-  journal=$(grep $key --max-count=1 $tmpBib.xml | sed -E "s|\W*<$key>(.+)</$key>\W*|\1|" | tr -d " ")
+  journal=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
 
-  key1="PubDate"; 
-  key2="Year"; year=$(awk "/<$key1>/,/<\/$key1>/" $tmpBib.xml | grep $key2 | sed -E "s|\W*<$key2>(.+)</$key2>\W*|\1|")
-
+  key="Year";
+  year=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
 }
 
 append_bibfile() {
@@ -81,6 +80,7 @@ append_bibfile() {
 
 append_pdf() {
   fn2=${author}_${journal}$year-$uid.pdf
+  echo $fn2
   #move pdf file to papers repository, add file name to bibtex url field
   mv $fn $pdfPathOut/$fn2
   echo "moved to $pdfPathOut/$fn2"
