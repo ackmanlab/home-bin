@@ -8,9 +8,10 @@ if [ "$1" == "-h" ] ; then
 
          depends: 
           fzf
+          bat 
           grep, git-grep, or ripgrep
           zathura (or other fast pdf viewer)
-          pdf2bib.sh - handles saving to your bib db
+          spdf.sh - handles saving to your bib db
     "
     exit 0
 fi
@@ -33,6 +34,8 @@ if [ -z "$1" ]; then
 
 else
     # rg $1 | fzf --delimiter : --preview 'less {1}' \
-    rg $1 | fzf --delimiter : --preview 'bat --color=always --style=numbers --line-range=:500 {}' \
+    # todo: replace this with a series elif blocks mapping selective previews and downstream application bindings to a set of desired filetypes
+    ls *.$1 | fzf --delimiter : --preview 'bat --color=always --style=numbers --line-range=:500 {}' \
         --preview-window=up:70% --bind "enter:execute-silent(gvim {1} &)" 
 fi
+
