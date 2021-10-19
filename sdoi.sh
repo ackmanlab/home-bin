@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$1" == "-h" ] ; then
     echo "
-        sdoi - search for doi guid on pubmed and append bibtex entry to bibtex db. Optionally import a downloaded pdf.
+    sdoi - search for a unique identifier (doi or pmid) on doi.org and/or pubmed and append bibtex entry to bibtex db. Optionally import a downloaded pdf.
 
          usage:
           sdoi.sh 'doi'
@@ -49,18 +49,19 @@ fetchBib_pubmed() {
 }
 
 fetchBib_doiDotOrg() {
+  #request bibtex from doi.org
   echo "pubmed id not found, trying doi.org.."
-  curl -LH 'Accept: application/x-bibtex' "http//dx.doi.org/"$doi >> $tmpBib
+  curl -LH 'Accept: application/x-bibtex' "https//dx.doi.org/"$doi >> $tmpBib
   echo -e "\n" >> $tmpBib
 }
 
 extract_name() {
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
-  author=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
+  author=$(xmllint --xpath "string(//$key)" $tmpBib.xml | tr -d ' ')
 
   key="MedlineTA"; 
-  journal=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
+  journal=$(xmllint --xpath "string(//$key)" $tmpBib.xml | tr -d ' ')
 
   key="Year";
   year=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
@@ -79,24 +80,31 @@ append_bibfile() {
 
 
 append_pdf() {
-  fn2=${author}_${journal}$year-$uid.pdf
-  echo $fn2
   #move pdf file to papers repository, add file name to bibtex url field
+  fn2=${author}_${journal}$year-$uid.pdf
+  echo "moving $fn to $pdfPathOut/$fn2"
   mv $fn $pdfPathOut/$fn2
-  echo "moved to $pdfPathOut/$fn2"
+  #insert local path to pdf into the retrieved bibtex url field
   sed -i -E "s|(\W*url = \{).*(\}.*)|\1$relPath/$fn2\2|" $tmpBib
 }
 
 
 clean_up() {
   #clean up
-  rm -f $tmpBib $tmpBib.xml
+  rm -f $tmpBib.bib $tmpBib.bib.xml
   exit 1
 }
 
 
-#main
-uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=doi&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s|<Id>([0-9]+)</Id>|\1|")
+#main function
+##test whether the given unique identifier (doi) is an actual doi, else assume its a pmid 
+if [[ -z $(echo $doi | grep "^10." -) ]]; then
+  searchField="pmid"
+else
+  searchField="doi"
+fi
+
+uid=$(curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=$doi&field=$searchField&retmode=xml" | grep -E "<Id>[0-9]+</Id>" | sed -E "s|<Id>([0-9]+)</Id>|\1|")
 
 tmpBib=$(mktemp -p ./ --suffix=.bib)
 
@@ -110,6 +118,5 @@ if [ -s "$tmpBib" ]; then
   import_bib
 else
   echo "sorry, doi not found.."
-  clean_up
 fi
 

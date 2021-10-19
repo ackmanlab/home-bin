@@ -45,17 +45,17 @@ fetchBib_pubmed() {
 
 fetchBib_doiDotOrg() {
   echo "pubmed id not found, trying doi.org.."
-  curl -LH 'Accept: application/x-bibtex' "http//dx.doi.org/"$doi >> $tmpBib
+  curl -LH 'Accept: application/x-bibtex' "https//dx.doi.org/"$doi >> $tmpBib
   echo -e "\n" >> $tmpBib
 }
 
 extract_name() {
   #extract some strings to make a nice filename for the pdf
   key="LastName"; 
-  author=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
+  author=$(xmllint --xpath "string(//$key)" $tmpBib.xml | tr -d ' ')
 
   key="MedlineTA"; 
-  journal=$(xmllint --xpath "string(//$key)" $tmpBib.xml)
+  journal=$(xmllint --xpath "string(//$key)" $tmpBib.xml | tr -d ' ')
 
   key="Year";
   year=$(xmllint --xpath "string(//$key)" $tmpBib.xml)

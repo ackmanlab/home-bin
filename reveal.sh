@@ -29,6 +29,11 @@ if [[ ! -e $basefn ]]; then
     ln -s $fn $basefn
 fi
 
+
+#add markdown filename into html title tag
+fn2=$(echo $basefn | sed -E 's/[0-9]{2,4}-//g' | sed 's/\.md//') #prep filename
+sed -i -E "s|(<title>).+(<\/title>)|\1$fn2\2|" index.html #swap in document title
+
 #add markdown filename to reveal placeholder start file
 sed -i -E "s|(<section data-markdown=\")[A-Za-z0-9\.-]*(\" )|\1$basefn\2|" index.html
 npm start -- --port=$portNumber
