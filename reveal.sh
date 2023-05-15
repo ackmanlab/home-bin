@@ -15,6 +15,9 @@ set -e
 
 appPath="$HOME/projects/dev/reveal.js"
 portNumber=${2:-8000}
+fn=$1 #markdown document to render e.g. neuroanatomy1.md
+basefn=$(basename $fn)
+fullfn=$(realpath $fn)
 
 if [[ ! -d $appPath ]]; then
     echo "reveal.js not found"
@@ -23,12 +26,9 @@ else
     cd $appPath
 fi
 
-fn=$1 #markdown document to render e.g. neuroanatomy1.md
-basefn=$(basename $fn)
 if [[ ! -e $basefn ]]; then
-    ln -s $fn $basefn
+  ln -s $fullfn $basefn 
 fi
-
 
 #add markdown filename into html title tag
 fn2=$(echo $basefn | sed -E 's/[0-9]{2,4}-//g' | sed 's/\.md//') #prep filename

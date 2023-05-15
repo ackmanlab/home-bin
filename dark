@@ -1,0 +1,29 @@
+#!/bin/bash
+#dark: control display color contrast from terminal
+#usage: dark, dark 1, dark on, dark 0, dark off 
+#James B. Ackman 2022-05-02T22:53:41-07:00  
+
+set -e #exit if an error
+mode=${1:-"dark"}
+
+if [[ $1 == "0" || $1 == "off"  ]]; then
+  mode=light
+  scheme=base16-atelier-dune-light.sh
+  # scheme=base16-classic-light.sh
+  # scheme=base16-gruvbox-light-hard.sh
+  TaskTheme="light-256"
+else
+  mode=dark
+  # scheme=base16-atelier-dune.sh
+  # scheme=base16-classic-dark.sh
+  scheme=base16-gruvbox-dark-hard.sh
+  TaskTheme="dark-gray-256"
+fi
+ 
+#if exist base16 shell color scheme, switch to scheme
+ln -sf ~/.config/base16-shell/scripts/$scheme ~/.base16_theme
+sh ~/.base16_theme
+
+#if exist taskwarrior taskrc file, switch the color scheme 
+sed -i -E "s|include /usr/share/doc/task/rc/[a-z1256-]+.theme|include /usr/share/doc/task/rc/$TaskTheme.theme|" ~/.config/task/taskrc
+

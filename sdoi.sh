@@ -24,8 +24,8 @@ set -e #exit if an error
 doi=$1
 fn=$2
 styleSheet=${pubmedStyleSheet:-$HOME/bin/pubmed2bibtex.xsl}
-bibdFileOut=${bibdFileOut:-$HOME/projects/bibd/OMEGA.bib}
-pdfPathOut=${pdfPathOut:-$HOME/projects/bibd/papers}
+bibdFileOut=${bibdFileOut:-$HOME/projects/learn/bibd/OMEGA.bib}
+pdfPathOut=${pdfPathOut:-$HOME/projects/learn/bibd/papers}
 relPath=$(basename $pdfPathOut)
 
 #define functions
@@ -45,7 +45,7 @@ import_bib() {
 fetchBib_pubmed() {
   #request pubmed xml and transform into bibtex
   curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=$uid&retmode=xml" > $tmpBib.xml
-  xsltproc --novalid $styleSheet $tmpBib.xml > $tmpBib
+  xsltproc --novalid $styleSheet $tmpBib.xml >> $tmpBib
 }
 
 fetchBib_doiDotOrg() {
@@ -69,7 +69,9 @@ extract_name() {
 
 append_bibfile() {
   #import bibtex
-  #first grep for a uid (doi) in case its already in db
+  #replace pubmed field with pmid
+  sed -i -E "s|(\W*)pubmed = |\1pmid = |" $tmpBib
+  #grep for a uid (doi) in case its already in db
   if [[ -z $(rg $doi $bibdFileOut) ]]; then
     echo "importing $tmpBib"
     cat $tmpBib >> $bibdFileOut
@@ -91,7 +93,7 @@ append_pdf() {
 
 clean_up() {
   #clean up
-  rm -f $tmpBib.bib $tmpBib.bib.xml
+  rm -f $tmpBib $tmpBib.xml
   exit 1
 }
 
@@ -118,5 +120,6 @@ if [ -s "$tmpBib" ]; then
   import_bib
 else
   echo "sorry, doi not found.."
+  exit 1
 fi
 

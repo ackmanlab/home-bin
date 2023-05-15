@@ -11,9 +11,15 @@ REM=`grep -i "charge_now" $BATTERY/uevent | awk -F= '{ print $2 }'`
 FULL=`grep -i "charge_full_design" $BATTERY/uevent | awk -F= '{ print $2 }'`
 PERCENT=`echo $(( $REM * 100 / $FULL ))`
 
-if [ $PERCENT -le "11" ]; then
+echo 'battery % is '$PERCENT
+
+if [ $PERCENT -le "23" ]; then
   #/usr/bin/i3-nagbar -m "Low battery"
-  #echo 'low battery '$PERCENT
   notify-send --urgency=critical "Low battery $PERCENT%"
+fi
+
+if [ $PERCENT -le "7" ]; then
+  echo "powering down..."
+  systemctl suspend
 fi
 

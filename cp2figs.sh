@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 if [ "$1" == "-h" ] ; then
     echo "
           cp2figs.sh - copy and convert image to figure assets folder and put html figure string containing relative link to the asset on system clipboard

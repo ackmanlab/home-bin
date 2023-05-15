@@ -1,0 +1,49 @@
+#!/bin/bash
+if [ "$1" == "-h" ] ; then
+    echo "
+    fetch_citation - extract citation for citekey in a bibtex.bib or bibjson.json file
+
+         usage:
+          fetch_citation citeKey
+
+         depends: 
+          grep, sed, echo
+          pandoc
+          pandoc-citeproc
+          wl-copy
+
+         defaults:
+          Set the required default file locations (csl file, bib file)
+ 
+    "
+    exit 0
+fi
+
+#Setup defaults
+cslFile=${2:-$HOME/projects/learn/bibd/bibd-md.csl}
+bibdFile=${3:-$HOME/projects/learn/bibd/OMEGA.bib}
+# bibdFile=${2:-$HOME/projects/learn/bibd/OMEGA.json}
+cd $(dirname $bibdFile)
+set -e #exit if an error
+
+#requires one citeKey string as input
+citeKey=$1
+
+#method1
+#todo: use json with jq
+# outCitation=$(pandoc -f latex <(echo "\cite{$citeKey}") -t plain -o - --bibliography $bibdFile --citeproc --csl $cslFile | tail -n +3)
+
+#method2
+#need to use a temporary bib file as input to pandoc because parsing a large bib file is too slow, but json input would be faster
+#and because pandoc expects a file input for bibliography
+tmpName=$(mktemp --suffix=.bib)
+str3=$(grep -A 30 $citeKey, $bibdFile)
+echo $str3 | sed -E "s|(.+\} ?\}).+|\1|" > $tmpName
+outCitation=$(pandoc -f latex <(echo "\cite{$citeKey}") -t plain -o - --bibliography $tmpName --citeproc --csl $cslFile | tail -n +3)
+rm $tmpName
+
+#tail -n +61 $fn | sed -E "s#(.+\}\})#\1#"
+# fzf --preview="head {}" --preview-window=up:30%
+# fzf --preview="file {}" --preview-window=down:1
+echo $outCitation
+echo $outCitation | wl-copy
