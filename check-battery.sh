@@ -18,7 +18,7 @@ if [ $PERCENT -le "23" ]; then
   notify-send --urgency=critical "Low battery $PERCENT%"
 fi
 
-if [ $PERCENT -le "7" ]; then
+if [ $PERCENT -le "3" ]; then
   echo "powering down..."
   systemctl suspend
 fi

@@ -1,16 +1,14 @@
 #!/bin/bash
 if [ "$1" == "-h" ] ; then
     echo "
-        shrinkpdf - resize pdf to smaller size. Warning: if no second file name is provided, the default behavior is to overwrite the original pdf
-         usage:
-          shrinkpdf.sh large.pdf
-          shrinkpdf.sh large.pdf small.pdf
-         dependencies:
-          ps2pdf from Ghostscript
-          mktemp from GNU Coreutils
-   
-              Usage: shrinkpdf.sh infile.pdf
-                     shrinkpdf.sh infile outfile.pdf 
+        pdfshrink - resize pdf to smaller size. Warning: if no second file name is provided, the default behavior is to overwrite the original pdf
+
+          Usage: pdfshrink infile.pdf
+                 pdfshrink infile outfile.pdf 
+
+          Dependencies:
+                 ps2pdf from Ghostscript
+                 mktemp from GNU Coreutils
     "
     exit 0
 fi

@@ -16,8 +16,6 @@ if [ "$1" == "-h" ] ; then
 fi
 
 # the following is from a stackoverflow answer
-# function pdfsplit()
-# {
     # this function uses 3 arguments:
     #     $1 is the first page of the range to extract
     #     $2 is the last page of the range to extract
@@ -27,5 +25,4 @@ fi
        -dLastPage=${2} \
        -sOutputFile=${3%.pdf}_p${1}-p${2}.pdf \
        ${3}
-# }
 
